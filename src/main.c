@@ -1,5 +1,5 @@
-#include "../include/printcolorido.h"
-#include "../include/variaveis.h"
+#include "printcolorido.h"
+#include "variaveis.h"
 
 int main() {
     const char matriz[TAMANHO][TAMANHO];
