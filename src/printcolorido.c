@@ -1,4 +1,4 @@
-#include "printcolorido.h"
+#include "../include/printcolorido.h"
 
 void mudar_cor_de_fundo(int red, int green, int blue) {
     printf("\033[48;2;%d;%d;%dm", red, green, blue);
