@@ -11,7 +11,6 @@ int main() {
             if (i >= 1 && j >= 1) {
 
             }
-            print_colorido_rgb(FOGO, fundo, texto);
         }
         printf("\n");
     }
