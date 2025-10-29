@@ -13,8 +13,10 @@ void resetar_cores() {
 }
 
 void print_colorido_rgb(const char *mensagem, const int *RGB_FUNDO, const int *RGB_TEXTO) {
-    mudar_cor_de_fundo(RGB_FUNDO[0], RGB_FUNDO[1], RGB_FUNDO[2]);
-    mudar_cor_texto(RGB_TEXTO[0], RGB_TEXTO[1], RGB_TEXTO[2]);
+    if (RGB_FUNDO != NULL)
+        mudar_cor_de_fundo(RGB_FUNDO[0], RGB_FUNDO[1], RGB_FUNDO[2]);
+    if (RGB_TEXTO != NULL)
+        mudar_cor_texto(RGB_TEXTO[0], RGB_TEXTO[1], RGB_TEXTO[2]);
     printf("%s", mensagem);
     resetar_cores();
 }
