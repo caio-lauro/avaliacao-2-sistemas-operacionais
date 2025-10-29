@@ -2,8 +2,6 @@
 #include "variaveis.h"
 
 int main() {
-    const char matriz[TAMANHO][TAMANHO];
-
     int fundo[3] = RGB_FUNDO;
     int texto[3] = {100, 0, 200};
     for (int i = 0; i < TAMANHO; i++) {
