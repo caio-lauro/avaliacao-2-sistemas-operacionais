@@ -1,4 +1,26 @@
 #pragma once
 
+#include <pthread.h>
+
 #define FOGO "🔥"
 #define TAMANHO 30
+
+typedef struct {
+    int pid;
+    pthread_t thread_id;
+    char c;
+} matriz_element_t;
+
+typedef struct {
+    matriz_element_t **elementos;
+    size_t size;
+} matriz_t;
+
+// Definir cores de fundo
+extern int fundo[3];
+extern int fundo_borda[3];
+
+// Definir cores de texto
+extern int texto_colunas[3];
+extern int texto_linhas[3];
+extern int texto[3];
