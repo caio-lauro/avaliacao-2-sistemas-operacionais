@@ -27,11 +27,11 @@ matriz_t *criar_matriz(size_t tamanho) {
     for (size_t i = 0; i < tamanho; i++) {
         for (size_t j = 0; j < tamanho; j++) {
             if ((i % 3 == 1) && (j % 3 == 1)) {
-                elementos[i][j].c = 'T';
+                elementos[i][j].fogo = false;
                 elementos[i][j].pid = 0;
                 elementos[i][j].thread_id = 0;
             } else {
-                elementos[i][j].c = '-';
+                elementos[i][j].fogo = false;
                 elementos[i][j].pid = -1;
                 elementos[i][j].thread_id = -1;
             }
@@ -91,18 +91,14 @@ void imprimir_matriz(matriz_t *matriz) {
 
         // Imprimir elementos da linha
         for (size_t j = 0; j < matriz->size; j++) {
-            switch (matriz->elementos[i][j].c) {
-                case 'F':
-                    print_colorido_rgb(" ", fundo, NULL);
-                    print_colorido_rgb(FOGO, fundo, NULL);
-                    print_colorido_rgb(" ", fundo, NULL);
-                    break;
-                case '-':
-                    print_colorido_rgb(" - ", fundo, texto);
-                    break;
-                case 'T':
-                    print_colorido_rgb(" T ", fundo, texto);
-                    break;
+            if (matriz->elementos[i][j].fogo) {
+                print_colorido_rgb(" ", fundo, NULL);
+                print_colorido_rgb(FOGO, fundo, NULL);
+                print_colorido_rgb(" ", fundo, NULL);
+            } else if (matriz->elementos[i][j].pid == 0) {
+                print_colorido_rgb(" T ", fundo, texto);
+            } else {
+                print_colorido_rgb(" - ", fundo, texto);
             }
         }
 
