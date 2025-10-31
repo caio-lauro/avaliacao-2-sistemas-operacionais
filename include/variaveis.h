@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <pthread.h>
 
 #define FOGO "🔥"
@@ -8,7 +9,7 @@
 typedef struct {
     int pid;
     pthread_t thread_id;
-    char c;
+    bool fogo;
 } matriz_element_t;
 
 typedef struct {
