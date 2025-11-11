@@ -9,7 +9,7 @@ int main() {
 
     // Ponteiro para vetor de threads
     pthread_arr_t threads;
-    inicializar_threads(&threads, TAMANHO);
+    inicializar_vetor(&threads, TAMANHO);
 
     // TODO: Lógica
 
