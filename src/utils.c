@@ -104,9 +104,7 @@ void imprimir_matriz(matriz_t matriz) {
         // Imprimir elementos da linha
         for (size_t j = 0; j < matriz.size; j++) {
             if (matriz.elementos[i][j].fogo) {
-                print_colorido_rgb(" ", fundo, NULL);
                 print_colorido_rgb(FOGO, fundo, NULL);
-                print_colorido_rgb(" ", fundo, NULL);
             } else if (matriz.elementos[i][j].c == 'T') {
                 print_colorido_rgb(" T ", fundo, texto);
             } else {
