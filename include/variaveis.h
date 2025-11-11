@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <pthread.h>
 
-#define FOGO "🔥"
+#define FOGO "🔥 "
 #define TAMANHO 30
 
 typedef struct {
@@ -19,6 +19,7 @@ typedef struct {
 typedef struct {
     int pid;
     pthread_t thread_id;
+    // Fila de mensagens (thread)
     int x, y;
 } arr_element_t;
 
