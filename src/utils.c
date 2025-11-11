@@ -68,13 +68,13 @@ void imprimir_matriz(matriz_t matriz) {
     char numero_guia[5];
 
     // Borda superior
-    for (int j = 0; j < TAMANHO_BORDA; j++) {
-        print_colorido_rgb(" ", fundo_borda, NULL);
+    for (int j = 0; j < TAMANHO_BORDA + 2; j++) {
+        print_colorido_rgb("█", fundo_borda, fundo_borda);
     }
     printf("\n");
 
     // Borda lateral da esquerda
-    print_colorido_rgb(" ", fundo_borda, NULL);
+    print_colorido_rgb("██", fundo_borda, fundo_borda);
 
     // Imprimir guias de colunas
     // Espaçamento inicial
@@ -88,14 +88,14 @@ void imprimir_matriz(matriz_t matriz) {
     print_colorido_rgb(" ", fundo, texto_colunas);
 
     // Borda lateral da direita
-    print_colorido_rgb(" ", fundo_borda, NULL);
+    print_colorido_rgb("██", fundo_borda, fundo_borda);
 
     printf("\n");
 
     // Imprimir linhas da matriz
     for (size_t i = 0; i < matriz.size; i++) {
         // Borda lateral da esquerda
-        print_colorido_rgb(" ", fundo_borda, NULL);
+        print_colorido_rgb("██", fundo_borda, fundo_borda);
 
         // Imprimir guia de linhas
         sprintf(numero_guia, "%2ld ", i);
@@ -113,14 +113,14 @@ void imprimir_matriz(matriz_t matriz) {
         }
 
         // Borda lateral da direita
-        print_colorido_rgb(" ", fundo_borda, NULL);
+        print_colorido_rgb("██", fundo_borda, fundo_borda);
 
         printf("\n");
     }
 
     // Borda inferior
-    for (int j = 0; j < TAMANHO_BORDA; j++) {
-        print_colorido_rgb(" ", fundo_borda, NULL);
+    for (int j = 0; j < TAMANHO_BORDA + 2; j++) {
+        print_colorido_rgb("█", fundo_borda, fundo_borda);
     }
     printf("\n");
 }
