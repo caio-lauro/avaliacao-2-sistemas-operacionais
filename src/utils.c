@@ -125,6 +125,10 @@ void imprimir_matriz(matriz_t matriz) {
     printf("\n");
 }
 
+void limpar_tela() {
+    printf("\033[H\033[J");
+}
+
 void liberar_matriz(matriz_t *matriz) {
     free(matriz->elementos[0]);
     free(matriz->elementos);

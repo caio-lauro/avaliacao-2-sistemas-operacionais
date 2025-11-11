@@ -20,8 +20,6 @@ int main() {
     pthread_arr_t threads;
     inicializar_vetor(&threads, tamanho);
 
-    imprimir_matriz(matriz);
-
     // Thread IDs
     pthread_t thread_central, thread_incendiaria;
 
@@ -49,6 +47,7 @@ int main() {
     // Impressão da matriz
     while (true) {
         sleep(1);
+        limpar_tela();
         imprimir_matriz(matriz);
     }
 
