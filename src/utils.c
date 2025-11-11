@@ -6,8 +6,8 @@ const int TAMANHO_MATRIZ_IMPRESSAO = 3 * TAMANHO + 3;
 // Variável para armazenar o tamanho da borda
 const int TAMANHO_BORDA = TAMANHO_MATRIZ_IMPRESSAO + 2;
 
-matriz_t *criar_matriz(size_t tamanho) {
-    matriz_element_t **elementos = calloc(tamanho, sizeof(matriz_element_t*));
+void inicializar_matriz(matriz_t *matriz, int tamanho) {
+    matriz_element_t **elementos;
     if (elementos == NULL) {
         printf("Erro na alocação dos ponteiros da matriz.\n");
         exit(EXIT_FAILURE); 
@@ -27,28 +27,37 @@ matriz_t *criar_matriz(size_t tamanho) {
     for (size_t i = 0; i < tamanho; i++) {
         for (size_t j = 0; j < tamanho; j++) {
             if ((i % 3 == 1) && (j % 3 == 1)) {
-                elementos[i][j].fogo = false;
-                elementos[i][j].pid = 0;
-                elementos[i][j].thread_id = 0;
+                elementos[i][j].c = 'T';
             } else {
-                elementos[i][j].fogo = false;
-                elementos[i][j].pid = -1;
-                elementos[i][j].thread_id = -1;
+                elementos[i][j].c = '-';
             }
+            elementos[i][j].fogo = false;
         }
     }
     
     // Criar a estrutura da matriz
-    matriz_t *matriz = malloc(sizeof(matriz_t));
-    if (matriz == NULL) {
-        printf("Erro na alocação da estrutura da matriz.\n");
+    matriz->elementos = elementos;
+    matriz->size = tamanho;
+}
+
+void inicializar_vetor(pthread_arr_t *arr, int tamanho) {
+    arr_element_t *elementos = malloc(sizeof(arr_element_t) * tamanho);
+    if (elementos == NULL) {
+        printf("Erro na alocação dos elementos do vetor\n");
         exit(EXIT_FAILURE);
     }
 
-    matriz->elementos = elementos;
-    matriz->size = tamanho;
+    int k = 0;
+    for (int i = 1; i < tamanho; i += 3) {
+        for (int j = 1; j < tamanho; j += 3) {
+            elementos[k].pid = elementos[k].thread_id = 0;
+            elementos[k].x = j;
+            elementos[k++].y = i;
+        }
+    }
 
-    return matriz;
+    arr->elementos = elementos;
+    arr->size = tamanho;
 }
 
 void imprimir_matriz(matriz_t *matriz) {
@@ -95,7 +104,7 @@ void imprimir_matriz(matriz_t *matriz) {
                 print_colorido_rgb(" ", fundo, NULL);
                 print_colorido_rgb(FOGO, fundo, NULL);
                 print_colorido_rgb(" ", fundo, NULL);
-            } else if (matriz->elementos[i][j].pid == 0) {
+            } else if (matriz->elementos[i][j].c == 'T') {
                 print_colorido_rgb(" T ", fundo, texto);
             } else {
                 print_colorido_rgb(" - ", fundo, texto);
@@ -115,8 +124,13 @@ void imprimir_matriz(matriz_t *matriz) {
     printf("\n");
 }
 
-void liberar_matriz(matriz_t **matriz) {
-    free((*matriz)->elementos[0]);
-    free((*matriz)->elementos);
-    (*matriz) = NULL;
+void liberar_matriz(matriz_t *matriz) {
+    free(matriz->elementos[0]);
+    free(matriz->elementos);
+    matriz = NULL;
+}
+
+void liberar_vetor(pthread_arr_t *arr) {
+    free(arr->elementos);
+    arr = NULL;
 }
