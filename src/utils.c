@@ -40,7 +40,10 @@ void inicializar_matriz(matriz_t *matriz, size_t tamanho) {
     matriz->size = tamanho;
 }
 
-void inicializar_vetor(pthread_arr_t *arr, size_t tamanho) {
+void inicializar_vetor(pthread_arr_t *arr, size_t tamanho_matriz) {
+    size_t qtd_linha = tamanho_matriz / 3;
+    size_t tamanho = qtd_linha * qtd_linha;
+
     arr_element_t *elementos = malloc(sizeof(arr_element_t) * tamanho);
     if (elementos == NULL) {
         printf("Erro na alocação dos elementos do vetor\n");
@@ -48,8 +51,8 @@ void inicializar_vetor(pthread_arr_t *arr, size_t tamanho) {
     }
 
     size_t k = 0;
-    for (size_t i = 1; i < tamanho; i += 3) {
-        for (size_t j = 1; j < tamanho; j += 3) {
+    for (size_t i = 1; i < tamanho_matriz; i += 3) {
+        for (size_t j = 1; j < tamanho_matriz; j += 3) {
             elementos[k].pid = elementos[k].thread_id = 0;
             elementos[k].x = j;
             elementos[k++].y = i;
@@ -60,7 +63,7 @@ void inicializar_vetor(pthread_arr_t *arr, size_t tamanho) {
     arr->size = tamanho;
 }
 
-void imprimir_matriz(matriz_t *matriz) {
+void imprimir_matriz(matriz_t matriz) {
     // Variável para armazenar números das guias com espaçamento
     char numero_guia[5];
 
@@ -78,7 +81,7 @@ void imprimir_matriz(matriz_t *matriz) {
     print_colorido_rgb("  ", fundo, texto_colunas);
 
     // Números das colunas
-    for (size_t j = 0; j < matriz->size; j++) {
+    for (size_t j = 0; j < matriz.size; j++) {
         sprintf(numero_guia, " %2ld", j);
         print_colorido_rgb(numero_guia, fundo, texto_colunas);
     }
@@ -90,7 +93,7 @@ void imprimir_matriz(matriz_t *matriz) {
     printf("\n");
 
     // Imprimir linhas da matriz
-    for (size_t i = 0; i < matriz->size; i++) {
+    for (size_t i = 0; i < matriz.size; i++) {
         // Borda lateral da esquerda
         print_colorido_rgb(" ", fundo_borda, NULL);
 
@@ -99,12 +102,12 @@ void imprimir_matriz(matriz_t *matriz) {
         print_colorido_rgb(numero_guia, fundo, texto_linhas);
 
         // Imprimir elementos da linha
-        for (size_t j = 0; j < matriz->size; j++) {
-            if (matriz->elementos[i][j].fogo) {
+        for (size_t j = 0; j < matriz.size; j++) {
+            if (matriz.elementos[i][j].fogo) {
                 print_colorido_rgb(" ", fundo, NULL);
                 print_colorido_rgb(FOGO, fundo, NULL);
                 print_colorido_rgb(" ", fundo, NULL);
-            } else if (matriz->elementos[i][j].c == 'T') {
+            } else if (matriz.elementos[i][j].c == 'T') {
                 print_colorido_rgb(" T ", fundo, texto);
             } else {
                 print_colorido_rgb(" - ", fundo, texto);
