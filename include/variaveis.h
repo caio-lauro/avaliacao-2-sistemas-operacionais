@@ -7,8 +7,7 @@
 #define TAMANHO 30
 
 typedef struct {
-    int pid;
-    pthread_t thread_id;
+    char c;
     bool fogo;
 } matriz_element_t;
 
@@ -16,6 +15,17 @@ typedef struct {
     matriz_element_t **elementos;
     size_t size;
 } matriz_t;
+
+typedef struct {
+    int pid;
+    pthread_t thread_id;
+    int x, y;
+} arr_element_t;
+
+typedef struct {
+    arr_element_t *elementos;
+    size_t size;
+} pthread_arr_t;
 
 // Definir cores de fundo
 extern int fundo[3];
