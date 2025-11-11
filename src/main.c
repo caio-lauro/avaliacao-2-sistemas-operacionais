@@ -3,13 +3,18 @@
 #include "utils.h"
 
 int main() {
-    // Criar matriz com um tamanho específico
-    matriz_t *matriz = criar_matriz(TAMANHO);
-    imprimir_matriz(matriz);
+    // Ponteiro para matriz de caracteres
+    matriz_t matriz;
+    inicializar_matriz(&matriz, TAMANHO);
+
+    // Ponteiro para vetor de threads
+    pthread_arr_t threads;
+    inicializar_threads(&threads, TAMANHO);
 
     // TODO: Lógica
 
     liberar_matriz(&matriz);
+    liberar_vetor(&threads);
 
     return 0;
 }
