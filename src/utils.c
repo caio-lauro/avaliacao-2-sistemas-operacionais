@@ -6,8 +6,8 @@ const int TAMANHO_MATRIZ_IMPRESSAO = 3 * TAMANHO + 3;
 // Variável para armazenar o tamanho da borda
 const int TAMANHO_BORDA = TAMANHO_MATRIZ_IMPRESSAO + 2;
 
-void inicializar_matriz(matriz_t *matriz, int tamanho) {
-    matriz_element_t **elementos;
+void inicializar_matriz(matriz_t *matriz, size_t tamanho) {
+    matriz_element_t **elementos = calloc(tamanho, sizeof(matriz_element_t*));
     if (elementos == NULL) {
         printf("Erro na alocação dos ponteiros da matriz.\n");
         exit(EXIT_FAILURE); 
@@ -40,16 +40,16 @@ void inicializar_matriz(matriz_t *matriz, int tamanho) {
     matriz->size = tamanho;
 }
 
-void inicializar_vetor(pthread_arr_t *arr, int tamanho) {
+void inicializar_vetor(pthread_arr_t *arr, size_t tamanho) {
     arr_element_t *elementos = malloc(sizeof(arr_element_t) * tamanho);
     if (elementos == NULL) {
         printf("Erro na alocação dos elementos do vetor\n");
         exit(EXIT_FAILURE);
     }
 
-    int k = 0;
-    for (int i = 1; i < tamanho; i += 3) {
-        for (int j = 1; j < tamanho; j += 3) {
+    size_t k = 0;
+    for (size_t i = 1; i < tamanho; i += 3) {
+        for (size_t j = 1; j < tamanho; j += 3) {
             elementos[k].pid = elementos[k].thread_id = 0;
             elementos[k].x = j;
             elementos[k++].y = i;
