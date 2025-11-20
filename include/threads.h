@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include "variaveis.h"
+#include "fila_mensagens.h"
 
 typedef struct {
     matriz_t *matriz;
@@ -19,13 +20,16 @@ typedef struct {
 
 typedef struct {
     matriz_t *matriz;
-    arr_element_t sensor;
+    pthread_arr_t *arr;
+    int i;
 } sensor_args_t;
 
 typedef struct {
     matriz_t *matriz;
-    // Fila de mensagens (global)
+    message_queue_t *message_queue;
 } central_args_t;
+
+extern pthread_mutex_t matriz_lock;
 
 void *sensor(void *arg);
 void *incendiaria(void *arg);

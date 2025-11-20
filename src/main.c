@@ -20,6 +20,13 @@ int main() {
     pthread_arr_t threads;
     inicializar_vetor(&threads, tamanho);
 
+    // Inicializar mutex
+    pthread_mutex_t matriz_lock;
+    if (pthread_mutex_init(&matriz_lock, NULL) != 0) {
+        printf("Erro na inicialização do mutex\n");
+        exit(EXIT_FAILURE);
+    }
+
     // Thread IDs
     pthread_t thread_central, thread_incendiaria;
 
@@ -28,7 +35,8 @@ int main() {
         pthread_t thread_sensor;
         sensor_args_t sensor_args;
         sensor_args.matriz = &matriz;
-        sensor_args.sensor = threads.elementos[i];
+        sensor_args.arr = &threads;
+        sensor_args.i = i;
         pthread_create(&thread_sensor, NULL, sensor, (void*)&sensor_args);
         threads.elementos[i].thread_id = thread_sensor;
     }
@@ -42,6 +50,7 @@ int main() {
     // Criação da thread central
     central_args_t central_args;
     central_args.matriz = &matriz;
+    message_queue_initialize(&central_args.message_queue);
     pthread_create(&thread_central, NULL, central, (void*)&central_args);
 
     // Impressão da matriz
@@ -51,6 +60,7 @@ int main() {
         imprimir_matriz(matriz);
     }
 
+    pthread_mutex_destroy(&matriz_lock);
     pthread_exit(NULL);
 
     liberar_matriz(&matriz);

@@ -6,6 +6,7 @@
 
 #include "variaveis.h"
 #include "printcolorido.h"
+#include "fila_mensagens.h"
 
 void inicializar_matriz(matriz_t *matriz, size_t tamanho);
 void inicializar_vetor(pthread_arr_t *arr, size_t tamanho);

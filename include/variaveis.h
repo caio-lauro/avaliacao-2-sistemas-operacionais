@@ -19,7 +19,7 @@ typedef struct {
 typedef struct {
     int pid;
     pthread_t thread_id;
-    // Fila de mensagens (thread)
+    message_queue_t *message_queue;
     int x, y;
 } arr_element_t;
 

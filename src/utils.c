@@ -53,9 +53,11 @@ void inicializar_vetor(pthread_arr_t *arr, size_t tamanho_matriz) {
     size_t k = 0;
     for (size_t i = 1; i < tamanho_matriz; i += 3) {
         for (size_t j = 1; j < tamanho_matriz; j += 3) {
-            elementos[k].pid = elementos[k].thread_id = 0;
+            elementos[k].pid = k;
+            elementos[k].thread_id = 0;
             elementos[k].x = j;
-            elementos[k++].y = i;
+            elementos[k].y = i;
+            message_queue_initialize(&elementos[k++].message_queue);
         }
     }
 
@@ -136,6 +138,9 @@ void liberar_matriz(matriz_t *matriz) {
 }
 
 void liberar_vetor(pthread_arr_t *arr) {
+    for (size_t i = 0; i < arr->size; i++) {
+        message_queue_free(&arr->elementos[i].message_queue);
+    }
     free(arr->elementos);
     arr = NULL;
 }
