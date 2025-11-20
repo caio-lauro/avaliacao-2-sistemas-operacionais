@@ -29,7 +29,8 @@ typedef struct {
     message_queue_t *message_queue;
 } central_args_t;
 
-extern pthread_mutex_t matriz_lock;
+void inicializar_mutex();
+void destruir_mutex();
 
 void *sensor(void *arg);
 void *incendiaria(void *arg);

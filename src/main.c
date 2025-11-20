@@ -6,8 +6,12 @@
 #include "threads.h"
 
 int main() {
+    // Criar / sobrescrever incendios.log
+    FILE *logs = fopen("./incendios.log", "w");
+    fclose(logs);
+
     // Tamanho da matriz
-    const int tamanho = TAMANHO;
+    const int tamanho = 12;
 
     // Garantir que o tamanho é divisível por 3
     assert(tamanho % 3 == 0);
@@ -21,23 +25,23 @@ int main() {
     inicializar_vetor(&threads, tamanho);
 
     // Inicializar mutex
-    pthread_mutex_t matriz_lock;
-    if (pthread_mutex_init(&matriz_lock, NULL) != 0) {
-        printf("Erro na inicialização do mutex\n");
-        exit(EXIT_FAILURE);
-    }
+    inicializar_mutex();
 
     // Thread IDs
     pthread_t thread_central, thread_incendiaria;
 
+    // Criação dos argumentos dos sensores
+    sensor_args_t *sensor_args = calloc(threads.size, sizeof(sensor_args_t));
+    for (size_t i = 0; i < threads.size; i++) {
+        sensor_args[i].matriz = &matriz;
+        sensor_args[i].arr = &threads;
+        sensor_args[i].i = i;
+    }
+
     // Criação das threads sensores
     for (size_t i = 0; i < threads.size; i++) {
         pthread_t thread_sensor;
-        sensor_args_t sensor_args;
-        sensor_args.matriz = &matriz;
-        sensor_args.arr = &threads;
-        sensor_args.i = i;
-        pthread_create(&thread_sensor, NULL, sensor, (void*)&sensor_args);
+        pthread_create(&thread_sensor, NULL, sensor, (void*)&sensor_args[i]);
         threads.elementos[i].thread_id = thread_sensor;
     }
 
@@ -60,7 +64,8 @@ int main() {
         imprimir_matriz(matriz);
     }
 
-    pthread_mutex_destroy(&matriz_lock);
+    destruir_mutex();
+    
     pthread_exit(NULL);
 
     liberar_matriz(&matriz);

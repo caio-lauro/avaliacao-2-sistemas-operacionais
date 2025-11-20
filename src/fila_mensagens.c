@@ -1,5 +1,13 @@
 #include "fila_mensagens.h"
 
+message_t message_create(size_t id, int pid, size_t x, size_t y) {
+    time_t t;
+    time(&t);
+    message_t msg = {id, pid, x, y, localtime(&t)};
+
+    return msg;
+}
+
 void message_queue_initialize(message_queue_t **q) {
     (*q) = malloc(sizeof(message_queue_t));
     (*q)->head = (*q)->tail = NULL;
@@ -36,9 +44,9 @@ void message_queue_push(message_queue_t *q, message_t msg) {
 }
 
 message_t message_queue_pop(message_queue_t *q) {
-    if (message_queue_empty(q)) {
+    if (message_queue_empty(q) || q->head == NULL) {
         printf("Fila de mensagens está vazia\n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     message_t msg = q->head->msg;

@@ -1,15 +1,38 @@
 #include "threads.h"
 
+size_t id_mensagem = 0;
+pthread_mutex_t matriz_lock;
 message_queue_t *mensagens_central;
+
+// Inicializar mutex
+void inicializar_mutex() {
+    if (pthread_mutex_init(&matriz_lock, NULL) != 0) {
+        printf("Erro na inicialização do mutex da matriz\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void destruir_mutex() { pthread_mutex_destroy(&matriz_lock); }
 
 // Função dos sensores
 void *sensor(void *arg) {
     sensor_args_t *args = (sensor_args_t*)arg;
+
     matriz_t *matriz = args->matriz;
-    const int tamanho = matriz->size;
+    const int tamanho_matriz = matriz->size;
+
     pthread_arr_t *arr = args->arr;
+    const int threads_por_linha = tamanho_matriz / 3;
+    
     int i = args->i;
     arr_element_t sensor = arr->elementos[i];
+
+    bool fogos_vistos[3][3] = {
+        {false, false, false},
+        {false, false, false},
+        {false, false, false}
+    };
+
     while (true) {
         sleep(1);
 
@@ -23,35 +46,43 @@ void *sensor(void *arg) {
 
                 if (i == 0 && j == 0) continue;
 
-                if (matriz->elementos[y][x].fogo) {
+                if (!fogos_vistos[i + 1][j + 1] && matriz->elementos[y][x].fogo) {
+                    // Marcar fogo como visto
+                    fogos_vistos[i + 1][j + 1] = true;
+
                     // Criação da mensagem
-                    message_t msg;
-                    msg.id = sensor.pid;
-                    time_t t;
-                    time(&t);
-                    msg.time = localtime(&t);
-                    msg.x = x;
-                    msg.y = y;
+                    message_t msg = message_create(id_mensagem++, sensor.pid, x, y);
 
-                    // Mandar mensagem para central
-                    if (sensor.x == 1 || sensor.y == 1 || sensor.x == tamanho - 2 || sensor.y == tamanho - 2) {
-                        message_queue_push(mensagens_central, msg);
-                    } 
-                    // Adicionar mensagem na fila de mensagens das threads adjacentes
-                    else {
-                        // Esquerda e direita
-                        message_queue_push(arr->elementos[i-1].message_queue, msg);
-                        message_queue_push(arr->elementos[i+1].message_queue, msg);
-
-                        // Cima e baixo
-                        message_queue_push(arr->elementos[i-tamanho].message_queue, msg);
-                        message_queue_push(arr->elementos[i+tamanho].message_queue, msg);
-                    }
+                    // Colocar mensagem na fila de mensagens da thread
+                    message_queue_push(sensor.message_queue, msg);
+                } else if (fogos_vistos[i + 1][j + 1] && !matriz->elementos[y][x].fogo) {
+                    // Desmarcar fogo como visto
+                    fogos_vistos[i + 1][j + 1] = false;
                 }
             }
         }
 
         pthread_mutex_unlock(&matriz_lock);
+
+        // Passar mensagens adiante
+        while (!message_queue_empty(sensor.message_queue)) {
+            message_t msg = message_queue_pop(sensor.message_queue);
+
+            // Mandar mensagem para central
+            if (sensor.x == 1 || sensor.y == 1 || sensor.x == tamanho_matriz - 2 || sensor.y == tamanho_matriz - 2) {
+                message_queue_push(mensagens_central, msg);
+            } 
+            // Adicionar mensagem na fila de mensagens das threads adjacentes
+            else {
+                // Esquerda e direita
+                message_queue_push(arr->elementos[i-1].message_queue, msg);
+                message_queue_push(arr->elementos[i+1].message_queue, msg);
+
+                // Cima e baixo
+                message_queue_push(arr->elementos[i-threads_por_linha].message_queue, msg);
+                message_queue_push(arr->elementos[i+threads_por_linha].message_queue, msg);
+            }
+        }
     }
 
     pthread_exit(NULL);
@@ -93,12 +124,12 @@ void *bombeiro(void *arg) {
     int i = args->i;
     int j = args->j;
 
-    pthread_mutex_lock(&matriz_lock);
+    sleep(2);
+
+    printf("apagando fogo em %2d %2d\n", i, j);
 
     // Apagar fogo
     matriz->elementos[i][j].fogo = false;
-
-    pthread_mutex_unlock(&matriz_lock);
 
     pthread_detach(pthread_self());
     pthread_exit(NULL);
@@ -110,18 +141,39 @@ void *central(void *arg) {
     matriz_t *matriz = args->matriz;
     mensagens_central = args->message_queue;
 
-    FILE *logs = fopen("./incendios.log", "a");
+    bool *seen_messages = calloc(8, sizeof(bool));
+    size_t seen_length = 8;
 
     while (true) {
         // Esperar enquanto a fila de mensagens está vazia
         while (message_queue_empty(mensagens_central));
 
         // Mensagem recebida
+        pthread_mutex_lock(&matriz_lock);
         message_t msg = message_queue_pop(mensagens_central);
 
-        // Verifica se a mensagem é nova
+        if (msg.id_mensagem >= seen_length) {
+            seen_length *= 2;
+            seen_messages = realloc(seen_messages, seen_length);
+        }
+        if (seen_messages[msg.id_mensagem]) {
+            continue;
+        }
+
+        seen_messages[msg.id_mensagem] = true;
+        FILE *logs = fopen("./incendios.log", "a");
+
+        // Separar tempo
+        int hour = msg.time->tm_hour;
+        int min = msg.time->tm_min;
+        int sec = msg.time->tm_sec;
 
         // Anotar no log
+        fprintf(
+            logs, 
+            "Incêndio detectado por %d, nas coordendas (%ld, %ld) em %02d:%02d:%02d\n", 
+            msg.pid, msg.x, msg.y, hour, min, sec
+        );
 
         // Argumentos para chamada ao bombeiro
         bombeiro_args_t args_bombeiro;
@@ -129,12 +181,14 @@ void *central(void *arg) {
         args_bombeiro.i = msg.y;
         args_bombeiro.j = msg.x;
 
+        pthread_mutex_unlock(&matriz_lock);
+
         // Chamada ao bombeiro (192)
         pthread_t thread_bombeiro;
         pthread_create(&thread_bombeiro, NULL, bombeiro, (void*)&args_bombeiro);
-    }
 
-    fclose(logs);
+        fclose(logs);
+    }
 
     pthread_exit(NULL);
 }

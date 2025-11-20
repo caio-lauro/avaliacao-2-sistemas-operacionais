@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <pthread.h>
+#include "fila_mensagens.h"
 
 #define FOGO "🔥 "
 #define TAMANHO 30

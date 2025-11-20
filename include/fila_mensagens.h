@@ -1,12 +1,14 @@
 #pragma once
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
 #include <pthread.h>
 
 typedef struct {
-    pthread_t id;
+    size_t id_mensagem;
+    int pid;
     size_t x, y;
     struct tm *time;
 } message_t;
@@ -20,6 +22,8 @@ typedef struct {
     queue_node_t *head, *tail;
     size_t sz;
 } message_queue_t;
+
+message_t message_create(size_t id, int pid, size_t x, size_t y);
 
 void message_queue_initialize(message_queue_t **q);
 void message_queue_free(message_queue_t **q);
