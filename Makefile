@@ -1,8 +1,8 @@
 INCLUDE_DIR = include
 
 CC = gcc
-CFLAGS = -std=c11 -Wall -Wextra -pthread -I$(INCLUDE_DIR)
-LDFLAGS = -pthread
+CFLAGS = -std=c11 -Wall -Wextra -pthread -g -I$(INCLUDE_DIR)
+LDFLAGS = -pthread -g
 
 SRC_DIR = src
 OBJ_DIR = obj
