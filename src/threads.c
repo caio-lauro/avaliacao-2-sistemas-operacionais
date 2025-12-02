@@ -90,21 +90,46 @@ void *sensor(void *arg) {
                 message_queue_push(mensagens_central, msg);
             } 
             // Adicionar mensagem na fila de mensagens das threads adjacentes
-            else if (msg.propagation_count > 0) {
+            else {
                 pthread_mutex_lock(&vetor_lock);
-                msg.propagation_count--;
 
-                // Esquerda e direita
-                if (i - 1 >= 0)
-                    message_queue_push(arr->elementos[i-1].message_queue, msg);
-                if (i + 1 < (int)arr->size)
-                    message_queue_push(arr->elementos[i+1].message_queue, msg);
+                if (msg.dir.x_dir == X_NONE) {
+                    // Passar mensagem para a esquerda e direita
+                    if (i - 1 >= 0) {
+                        msg.dir.x_dir = RIGHT;
+                        message_queue_push(arr->elementos[i-1].message_queue, msg);
+                    }
 
-                // Cima e baixo
-                if (i >= threads_por_linha)
-                    message_queue_push(arr->elementos[i-threads_por_linha].message_queue, msg);
-                if (i + threads_por_linha < (int)arr->size)
-                    message_queue_push(arr->elementos[i+threads_por_linha].message_queue, msg);
+                    if (i + 1 < (int)arr->size) {
+                        msg.dir.x_dir = LEFT;
+                        message_queue_push(arr->elementos[i+1].message_queue, msg);
+                    }
+
+                    msg.dir.x_dir = X_NONE;
+                } else {
+                    // Passar mensagem para a direção contrária da recebida
+                    if (0 <= i+msg.dir.x_dir && i+msg.dir.x_dir < (int)arr->size)
+                        message_queue_push(arr->elementos[i+msg.dir.x_dir].message_queue, msg);
+                }
+
+                if (msg.dir.y_dir == Y_NONE) {
+                    // Passar mensagem para cima e baixo
+                    if (i - threads_por_linha >= 0) {
+                        msg.dir.y_dir = DOWN;
+                        message_queue_push(arr->elementos[i-threads_por_linha].message_queue, msg);
+                    }
+
+                    if (i + threads_por_linha < (int)arr->size) {
+                        msg.dir.y_dir = UP;
+                        message_queue_push(arr->elementos[i+threads_por_linha].message_queue, msg);
+                    }
+
+                    msg.dir.y_dir = Y_NONE;
+                } else {
+                    // Passar mensagem para a direção contrária da recebida
+                    if (0 <= i+(msg.dir.y_dir * threads_por_linha) && i+(msg.dir.y_dir * threads_por_linha) < (int)arr->size)
+                        message_queue_push(arr->elementos[i+(msg.dir.y_dir * threads_por_linha)].message_queue, msg);
+                }
 
                 pthread_mutex_unlock(&vetor_lock);
             }
@@ -126,6 +151,19 @@ void *incendiaria(void *arg) {
         int j = rand() % matriz->size;
 
         pthread_mutex_lock(&matriz_lock);
+
+        while (matriz->elementos[i][j].fogo) {
+            j++;
+            if (j == (int)matriz->size) {
+                j = 0;
+                i++;
+            }
+            
+            if (i == (int)matriz->size) {
+                i = 0, j = 0;
+                break;
+            }
+        }
 
         // Caso em que fogo atinge a thread
         if (i % 3 == 1 && j % 3 == 1) {
