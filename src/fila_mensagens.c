@@ -3,7 +3,9 @@
 message_t message_create(size_t id, int pid, size_t x, size_t y) {
     time_t t;
     time(&t);
-    message_t msg = {id, pid, x, y, localtime(&t), 6};
+
+    origin_dir dir = {X_NONE, Y_NONE};
+    message_t msg = {id, pid, x, y, localtime(&t), dir};
 
     return msg;
 }
