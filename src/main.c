@@ -6,12 +6,15 @@
 #include "threads.h"
 
 int main() {
+    // Definir srand
+    srand(14);
+
     // Criar / sobrescrever incendios.log
     FILE *logs = fopen("./incendios.log", "w");
     fclose(logs);
 
     // Tamanho da matriz
-    const int tamanho = 12;
+    const int tamanho = TAMANHO;
 
     // Garantir que o tamanho é divisível por 3
     assert(tamanho % 3 == 0);
