@@ -1,7 +1,7 @@
 #include "threads.h"
 
 size_t id_mensagem = 0;
-pthread_mutex_t matriz_lock;
+pthread_mutex_t matriz_lock, id_lock, vetor_lock;
 message_queue_t *mensagens_central;
 
 // Inicializar mutex
@@ -10,9 +10,21 @@ void inicializar_mutex() {
         printf("Erro na inicialização do mutex da matriz\n");
         exit(EXIT_FAILURE);
     }
+    if (pthread_mutex_init(&id_lock, NULL) != 0) {
+        printf("Erro na inicialização do mutex do ID\n");
+        exit(EXIT_FAILURE);
+    }
+    if (pthread_mutex_init(&vetor_lock, NULL) != 0) {
+        printf("Erro na inicialização do mutex do vetor\n");
+        exit(EXIT_FAILURE);
+    }
 }
 
-void destruir_mutex() { pthread_mutex_destroy(&matriz_lock); }
+void destruir_mutex() { 
+    pthread_mutex_destroy(&matriz_lock);
+    pthread_mutex_destroy(&id_lock);
+    pthread_mutex_destroy(&vetor_lock);
+}
 
 // Função dos sensores
 void *sensor(void *arg) {
@@ -50,8 +62,13 @@ void *sensor(void *arg) {
                     // Marcar fogo como visto
                     fogos_vistos[i + 1][j + 1] = true;
 
+                    // ID da mensagem
+                    pthread_mutex_lock(&id_lock);
+                    size_t id_atual = id_mensagem++;
+                    pthread_mutex_unlock(&id_lock);
+
                     // Criação da mensagem
-                    message_t msg = message_create(id_mensagem++, sensor.pid, x, y);
+                    message_t msg = message_create(id_atual, sensor.pid, x, y);
 
                     // Colocar mensagem na fila de mensagens da thread
                     message_queue_push(sensor.message_queue, msg);
@@ -73,14 +90,23 @@ void *sensor(void *arg) {
                 message_queue_push(mensagens_central, msg);
             } 
             // Adicionar mensagem na fila de mensagens das threads adjacentes
-            else {
+            else if (msg.propagation_count > 0) {
+                pthread_mutex_lock(&vetor_lock);
+                msg.propagation_count--;
+
                 // Esquerda e direita
-                message_queue_push(arr->elementos[i-1].message_queue, msg);
-                message_queue_push(arr->elementos[i+1].message_queue, msg);
+                if (i - 1 >= 0)
+                    message_queue_push(arr->elementos[i-1].message_queue, msg);
+                if (i + 1 < (int)arr->size)
+                    message_queue_push(arr->elementos[i+1].message_queue, msg);
 
                 // Cima e baixo
-                message_queue_push(arr->elementos[i-threads_por_linha].message_queue, msg);
-                message_queue_push(arr->elementos[i+threads_por_linha].message_queue, msg);
+                if (i >= threads_por_linha)
+                    message_queue_push(arr->elementos[i-threads_por_linha].message_queue, msg);
+                if (i + threads_por_linha < (int)arr->size)
+                    message_queue_push(arr->elementos[i+threads_por_linha].message_queue, msg);
+
+                pthread_mutex_unlock(&vetor_lock);
             }
         }
     }
@@ -106,7 +132,9 @@ void *incendiaria(void *arg) {
             int k = ((i - 1) / 3) * (matriz->size / 3) + (j - 1) / 3;
 
             // Fechar a thread
+            pthread_mutex_lock(&vetor_lock);
             pthread_cancel(arr->elementos[k].thread_id);
+            pthread_mutex_unlock(&vetor_lock);
         }
 
         matriz->elementos[i][j].fogo = true;
@@ -126,8 +154,6 @@ void *bombeiro(void *arg) {
 
     sleep(2);
 
-    printf("apagando fogo em %2d %2d\n", i, j);
-
     // Apagar fogo
     matriz->elementos[i][j].fogo = false;
 
@@ -145,22 +171,32 @@ void *central(void *arg) {
     size_t seen_length = 8;
 
     while (true) {
-        // Esperar enquanto a fila de mensagens está vazia
-        while (message_queue_empty(mensagens_central));
-
-        // Mensagem recebida
-        pthread_mutex_lock(&matriz_lock);
+        // Esperar por uma mensagem recebida e removê-la da fila
         message_t msg = message_queue_pop(mensagens_central);
 
+        pthread_mutex_lock(&matriz_lock);
+
         if (msg.id_mensagem >= seen_length) {
-            seen_length *= 2;
-            seen_messages = realloc(seen_messages, seen_length);
+            // Criação de novo vetor
+            size_t new_size = seen_length * 2;
+            bool *buf = realloc(seen_messages, new_size);
+
+            // Inicializar novos valores como false (realloc não inicializa com 0)
+            for (size_t i = seen_length; i < new_size; i++) buf[i] = false;
+
+            // Atualização das informações
+            seen_messages = buf;
+            seen_length = new_size;
         }
+
+        // Se a mensagem já foi vista, desbloqueia matriz_lock e prossegue para próxima mensagem
         if (seen_messages[msg.id_mensagem]) {
+            pthread_mutex_unlock(&matriz_lock);
             continue;
         }
 
         seen_messages[msg.id_mensagem] = true;
+
         FILE *logs = fopen("./incendios.log", "a");
 
         // Separar tempo
