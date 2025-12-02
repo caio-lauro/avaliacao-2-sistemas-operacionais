@@ -11,6 +11,7 @@ typedef struct {
     int pid;
     size_t x, y;
     struct tm *time;
+    size_t propagation_count;
 } message_t;
 
 typedef struct queue_node_t{
@@ -21,6 +22,8 @@ typedef struct queue_node_t{
 typedef struct {
     queue_node_t *head, *tail;
     size_t sz;
+    pthread_mutex_t mtx;
+    pthread_cond_t cond;
 } message_queue_t;
 
 message_t message_create(size_t id, int pid, size_t x, size_t y);
