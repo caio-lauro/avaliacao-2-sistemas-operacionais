@@ -9,11 +9,11 @@ ________________________________________________________________________________
 ____________________________________________________________________________________
 
 Para compilação do projeto, são necessários os utilitários:
-Make;
-GCC;
+    • Make;
+    • GCC;
 Além disso, faz-se necessário o uso da biblioteca <pthread.h>.
 Para compilar, basta rodar
-make
+    make
 na raíz do projeto.
 O executável será gerado em bin/main
 
@@ -29,7 +29,7 @@ células de altura, para exibição de toda a matriz simultaneamente e de forma
 correta.
 
 Para utilizar o programa, basta rodar o comando
-bin/main
+    bin/main
 na raíz do projeto.
 
 Para finalização do programa, dado a natureza de sua execução por tempo 
@@ -38,6 +38,7 @@ sinal de interrupção (SIGINT) para o programa.
 
 Durante a execução do programa, é gerado um arquivo de log, incendios.log, na 
 pasta raíz do projeto, que contém mensagens no formato:
+
 Incêndio detectado por (NÚMERO DA THREAD), nas coordendas (X, Y) em HH:MM:SS
 
 ____________________________________________________________________________________
