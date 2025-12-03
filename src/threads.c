@@ -261,6 +261,7 @@ void *central(void *arg) {
         pthread_t thread_bombeiro;
         pthread_create(&thread_bombeiro, NULL, bombeiro, (void*)&args_bombeiro);
 
+        free(msg.time);
         fclose(logs);
     }
 
