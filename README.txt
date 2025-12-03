@@ -9,8 +9,8 @@ ________________________________________________________________________________
 ____________________________________________________________________________________
 
 Para compilação do projeto, são necessários os utilitários:
-    • Make;
-    • GCC;
+ • Make;
+ • GCC;
 Além disso, faz-se necessário o uso da biblioteca <pthread.h>.
 Para compilar, basta rodar
     make
@@ -47,16 +47,16 @@ ________________________________________________________________________________
 ____________________________________________________________________________________
 
 Estrutura do projeto:
-.
-├── LICENSE (Licensa de uso: MIT License)
-├── Makefile (Makefile utilizado por make para compilação do projeto)
-├── README.txt (Este arquivo)
-├── bin (Diretório para o executável)
-│   └── main (Executável)
-├── incendios.log (Log dos incêndios)
-├── include (Diretório para os arquivos Header)
-├── obj (Diretório para os arquivos objeto usados na compilação)
-└── src (Diretório para os arquivos de implementação)
+    .
+    ├── LICENSE (Licensa de uso: MIT License)
+    ├── Makefile (Makefile utilizado por make para compilação do projeto)
+    ├── README.txt (Este arquivo)
+    ├── bin (Diretório para o executável)
+    │   └── main (Executável)
+    ├── incendios.log (Log dos incêndios)
+    ├── include (Diretório para os arquivos Header)
+    ├── obj (Diretório para os arquivos objeto usados na compilação)
+    └── src (Diretório para os arquivos de implementação)
 
 A seed utilizada por srand é baseada no tempo desde o começo da Era Unix (tempo
 retornado por time(NULL) desde 1º de janeiro de 1970). A partir dessa seed, são
