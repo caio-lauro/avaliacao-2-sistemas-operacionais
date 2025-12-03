@@ -7,7 +7,7 @@
 
 int main() {
     // Definir srand
-    srand(14);
+    srand(time(NULL));
 
     // Criar / sobrescrever incendios.log
     FILE *logs = fopen("./incendios.log", "w");
@@ -69,10 +69,10 @@ int main() {
 
     destruir_mutex();
     
-    pthread_exit(NULL);
-
     liberar_matriz(&matriz);
     liberar_vetor(&threads);
+
+    pthread_exit(NULL);
 
     return 0;
 }
