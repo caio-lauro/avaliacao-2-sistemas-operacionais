@@ -5,7 +5,7 @@ Estudantes: Caio Lauro de Lima, Luma da Silva Bergmann, Yuri Daniel Moreira Gome
 
 ____________________________________________________________________________________
 
-                            Instruções de Compilação
+                             Instruções de Compilação
 ____________________________________________________________________________________
 
 Para compilação do projeto, são necessários os utilitários:
@@ -19,7 +19,7 @@ O executável será gerado em bin/main
 
 ____________________________________________________________________________________
 
-                            Instruções de utilização
+                             Instruções de Utilização
 ____________________________________________________________________________________
 
 Para boa utilização, é necessário o uso de um terminal com: suporte à true color,
