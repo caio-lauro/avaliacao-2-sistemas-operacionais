@@ -4,8 +4,11 @@ message_t message_create(size_t id, int pid, size_t x, size_t y) {
     time_t t;
     time(&t);
 
+    struct tm *tmp = malloc(sizeof(struct tm));
+    (*tmp) = *localtime(&t);
+
     origin_dir dir = {X_NONE, Y_NONE};
-    message_t msg = {id, pid, x, y, localtime(&t), dir};
+    message_t msg = { id, pid, x, y, tmp, dir };
 
     return msg;
 }
