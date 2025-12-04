@@ -39,10 +39,11 @@ void *sensor(void *arg) {
     int i = args->i;
     arr_element_t sensor = arr->elementos[i];
 
-    bool fogos_vistos[3][3] = {
-        {false, false, false},
-        {false, false, false},
-        {false, false, false}
+    // Contar quantos ciclos se passaram desde que o fogo foi visto (0 = nao visto)
+    int fogos_vistos[3][3] = {
+        {0, 0, 0},
+        {0, 0, 0},
+        {0, 0, 0}
     };
 
     while (true) {
@@ -58,9 +59,10 @@ void *sensor(void *arg) {
 
                 if (i == 0 && j == 0) continue;
 
-                if (!fogos_vistos[i + 1][j + 1] && matriz->elementos[y][x].fogo) {
+                // Se o fogo não foi visto, ou se o número de ciclos desde a visualização é >= 10, mandar mensagem
+                if ((fogos_vistos[i + 1][j + 1] == 0 || fogos_vistos[i + 1][j + 1] >= 10) && matriz->elementos[y][x].fogo) {
                     // Marcar fogo como visto
-                    fogos_vistos[i + 1][j + 1] = true;
+                    fogos_vistos[i + 1][j + 1] = 1;
 
                     // ID da mensagem
                     pthread_mutex_lock(&id_lock);
@@ -72,9 +74,15 @@ void *sensor(void *arg) {
 
                     // Colocar mensagem na fila de mensagens da thread
                     message_queue_push(sensor.message_queue, msg);
-                } else if (fogos_vistos[i + 1][j + 1] && !matriz->elementos[y][x].fogo) {
-                    // Desmarcar fogo como visto
-                    fogos_vistos[i + 1][j + 1] = false;
+                } 
+                // Se o fogo foi visto:
+                else if (fogos_vistos[i + 1][j + 1] > 0) {
+                    // E não existe mais fogo, desmarcar fogo como visto
+                    if (!matriz->elementos[y][x].fogo)
+                        fogos_vistos[i + 1][j + 1] = 0;
+                    // E ainda existe, aumentar contagem de ciclos
+                    else
+                        fogos_vistos[i + 1][j + 1]++;
                 }
             }
         }
