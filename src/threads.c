@@ -160,16 +160,18 @@ void *incendiaria(void *arg) {
 
         pthread_mutex_lock(&matriz_lock);
 
+        // Caso haja fogo na posição sorteada, procura a próxima posição sem fogo (circular)
+        int initial_i = i, initial_j = j;
         while (matriz->elementos[i][j].fogo) {
-            j++;
-            if (j == (int)matriz->size) {
+            if (++j == (int)matriz->size) {
                 j = 0;
                 i++;
             }
+
+            if (i == initial_i && j == initial_j) break;
             
             if (i == (int)matriz->size) {
                 i = 0, j = 0;
-                break;
             }
         }
 
